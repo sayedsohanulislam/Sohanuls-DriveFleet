@@ -28,8 +28,11 @@ export const AuthProvider = ({ children }) => {
 
   // Refetch session on mount to pick up OAuth redirects and session cookies
   useEffect(() => {
-    session.refetch?.();
-  }, []);
+    // Only refetch if we don't already have a session
+    if (!session.data?.user && !session.isPending) {
+      session.refetch?.();
+    }
+  }, [session.data?.user, session.isPending]);
 
   const login = async (email, password) => {
     const result = await authClient.signIn.email({

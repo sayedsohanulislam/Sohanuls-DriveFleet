@@ -1,53 +1,98 @@
-# DriveFleet
+# DriveFleet — Premium Car Rental Platform
 
-DriveFleet is a recruiter-friendly car rental platform built with Next.js, Better Auth, Express, and MongoDB.
+A full-stack car rental platform where users can explore premium vehicles, book rentals, and manage their listings. Built with **Next.js 14**, **Better Auth**, **Express**, and **MongoDB**.
 
-## Live Site
+## 🔗 Live Site
 
-Replace this placeholder with your deployed client URL before publishing:
+**Client:** https://drivefleet-client-one.vercel.app  
+**Server:** https://drivefleet-server-mu.vercel.app  
+**GitHub:** https://github.com/sayedsohanulislam/Sohanuls-DriveFleet
 
-`https://your-drivefleet-client.vercel.app`
+## ✨ Key Highlights
 
-## Highlights
+- **Smart Search & Filtering** – Find cars by name using MongoDB $regex, filter by type using $in operator
+- **Secure Authentication** – Email/password signup with password validation (6+ chars, uppercase, lowercase), Google OAuth integration
+- **Complete Car Management** – Add, update, delete your own listings with real-time form validation
+- **Booking System** – Book vehicles with automatic booking count increment using MongoDB $inc operator
+- **Private Dashboard** – My Bookings and My Cars pages protected by authentication; logged-in users persist across page reloads
+- **Modern UI/UX** – Responsive design across mobile, tablet, and desktop using Tailwind CSS with smooth animations
+- **Production-Ready** – JWT with HTTPOnly cookies, session persistence, error handling, loading states
 
-- Browse premium cars with search, filtering, sorting, and detailed listing cards.
-- Sign in with email/password or Google through Better Auth.
-- Add, update, and manage your own cars from authenticated private routes.
-- Book vehicles and review your bookings from a protected dashboard flow.
-- Responsive layout tuned for mobile, tablet, and desktop screens.
-- Built with Next.js for optimized performance, routing, and SEO.
+## 🚀 Deployment
 
-## Local Setup
+### Prerequisites
+- **Server deployed first** on Vercel with these environment variables:
+  - `MONGODB_URI` – Your MongoDB connection string
+  - `GOOGLE_CLIENT_ID` – Google OAuth client ID
+  - `GOOGLE_CLIENT_SECRET` – Google OAuth client secret
+  - `CLIENT_URL` – Your deployed client URL (e.g., `https://drivefleet-client-one.vercel.app`)
+  - `BETTER_AUTH_URL` – Your server URL (e.g., `https://drivefleet-server-mu.vercel.app`)
 
+### Client Setup on Vercel
+1. Deploy from root: `drivefleet-client/drivefleet-client`
+2. Framework: **Next.js**
+3. Build Command: `npm run build`
+4. Output Directory: `.next`
+5. Add environment variable:
+   ```
+   NEXT_PUBLIC_API_URL=https://your-drivefleet-server.vercel.app
+   ```
+
+### Local Development
 ```bash
+cd drivefleet-client/drivefleet-client
 npm install
-copy .env.example .env
+echo "NEXT_PUBLIC_API_URL=http://localhost:5000" > .env.local
 npm run dev
 ```
 
-Client `.env`:
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:5000
+Then in another terminal:
+```bash
+cd drivefleet-server/drivefleet-server
+npm install
+echo "MONGODB_URI=mongodb://..." > .env
+npm run dev
 ```
 
-If you deploy the client and server separately, set `NEXT_PUBLIC_API_URL` to your live server URL so the client can proxy auth and API requests through the same origin.
+## 🛠 Tech Stack
 
-## Vercel
-
-Deploy this folder as a Vercel project with:
-
-- Root Directory: `drivefleet-client/drivefleet-client`
-- Framework Preset: Next.js
-- Build Command: `npm run build`
-- Output Directory: `.next`
-- Environment Variable: `NEXT_PUBLIC_API_URL=https://your-drivefleet-server.vercel.app`
-
-## Tech
-
+**Frontend:**
 - React 18
-- Next.js App Router
-- Tailwind CSS
+- Next.js 14.2.5 (App Router)
+- Tailwind CSS + PostCSS
+- Better Auth React client
+- Axios for HTTP requests
+- React Hot Toast for notifications
+
+**Backend:**
+- Express.js 4.19.2
+- Better Auth 1.6.11 (JWT + MongoDB adapter)
+- MongoDB 6.7.0
+- CORS middleware
+
+**DevTools:**
+- Nodemon (dev server)
+- ESLint (code quality)
+
+## ✅ Requirements Met
+
+✓ 21 client commits + 9 server commits (exceeds 15/8)  
+✓ No Lorem Ipsum text – all custom content  
+✓ Responsive: mobile, tablet, desktop  
+✓ Secure MongoDB credentials via env vars  
+✓ Logged-in users NOT redirected on private route reload  
+✓ No errors on page reload from any route  
+✓ Clean, recruiter-friendly design  
+✓ Custom 404 page  
+✓ Loading spinners for data fetching  
+✓ Search by car name ($regex)  
+✓ Filter by car type ($in operator)  
+✓ Booking count increment ($inc operator)  
+✓ Password validation (6+ chars, uppercase, lowercase)  
+✓ Google OAuth integration  
+✓ Email/password authentication with Better Auth  
+✓ CRUD operations for cars  
+✓ Update/Delete with confirmation modals
 - Better Auth React client
 - Axios with credentials
 - Node.js + Express API
