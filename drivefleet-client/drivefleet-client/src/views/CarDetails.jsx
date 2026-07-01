@@ -1,5 +1,6 @@
+"use client";
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -16,7 +17,7 @@ const API = API_BASE_URL;
 const CarDetails = () => {
   const { id } = useParams();
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [car, setCar] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -36,7 +37,7 @@ const CarDetails = () => {
 
   const handleBook = async (e) => {
     e.preventDefault();
-    if (!user) { toast.error('Please login to book'); navigate('/login'); return; }
+    if (!user) { toast.error('Please login to book'); router.push('/login'); return; }
     setBooking(true);
     try {
       await axiosSecure.post('/bookings', {
@@ -65,7 +66,7 @@ const CarDetails = () => {
   if (!car) return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-4 pt-20">
       <p className="text-xl font-ui">Car not found</p>
-      <button onClick={() => navigate('/explore')} className="btn-primary">Back to Explore</button>
+      <button onClick={() => router.push('/explore')} className="btn-primary">Back to Explore</button>
     </div>
   );
 
@@ -76,7 +77,7 @@ const CarDetails = () => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         {/* Back button */}
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => router.back()}
           className="flex items-center gap-2 mb-8 font-ui text-sm tracking-wide uppercase transition-colors hover:text-white"
           style={{ color: 'var(--text-secondary)' }}
         >
@@ -161,7 +162,7 @@ const CarDetails = () => {
             {car.availabilityStatus ? (
               <button
                 onClick={() => {
-                  if (!user) { toast.error('Please login to book'); navigate('/login'); return; }
+                  if (!user) { toast.error('Please login to book'); router.push('/login'); return; }
                   setShowModal(true);
                 }}
                 className="btn-primary w-full text-lg py-4 animate-pulse-orange"

@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+"use client";
+
+import Link from 'next/link';
 import { MdDirectionsCar, MdPhone, MdEmail, MdLocationOn } from 'react-icons/md';
 import {
   FaFacebookF, FaInstagram, FaLinkedinIn, FaYoutube,
@@ -77,7 +79,7 @@ const Footer = () => {
             ].map((link) => (
               <li key={link.to}>
                 <Link
-                  to={link.to}
+                  href={link.to}
                   className="text-sm transition-colors hover:text-white flex items-center gap-2"
                   style={{ color: 'var(--text-secondary)' }}
                 >
@@ -99,7 +101,7 @@ const Footer = () => {
             {['SUV', 'Sedan', 'Hatchback', 'Luxury', 'Electric', 'Convertible'].map((cat) => (
               <li key={cat}>
                 <Link
-                  to={`/explore?type=${cat}`}
+                  href={`/explore?type=${cat}`}
                   className="text-sm transition-colors hover:text-white flex items-center gap-2"
                   style={{ color: 'var(--text-secondary)' }}
                 >

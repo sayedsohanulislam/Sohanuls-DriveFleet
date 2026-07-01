@@ -1,5 +1,7 @@
+"use client";
+
 import { useEffect, useState, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { API_BASE_URL } from '../lib/api';
 import CarCard from '../components/CarCard';
@@ -10,7 +12,7 @@ const API = API_BASE_URL;
 const CAR_TYPES = ['All', 'SUV', 'Sedan', 'Hatchback', 'Luxury', 'Electric', 'Convertible', 'Pickup'];
 
 const ExploreCars = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const searchParams = useSearchParams();
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(searchParams.get('q') || '');

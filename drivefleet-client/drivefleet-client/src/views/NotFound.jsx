@@ -1,8 +1,11 @@
-import { Link, useNavigate } from 'react-router-dom';
+"use client";
+
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 const NotFound = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   useEffect(() => { document.title = '404 — DriveFleet'; }, []);
 
   return (
@@ -35,13 +38,13 @@ const NotFound = () => {
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-4">
-          <Link to="/">
+          <Link href="/">
             <button className="btn-primary px-8 py-4 text-base">
               Back to Home
             </button>
           </Link>
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => router.back()}
             className="btn-outline px-8 py-4 text-base"
           >
             Go Back

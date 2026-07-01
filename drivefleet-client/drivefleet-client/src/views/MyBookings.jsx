@@ -1,10 +1,11 @@
+"use client";
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axiosSecure from '../hooks/useAxiosSecure';
 import LoadingSpinner from '../components/LoadingSpinner';
 import toast from 'react-hot-toast';
 import { FiCalendar, FiUser, FiMapPin, FiExternalLink } from 'react-icons/fi';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { format } from 'date-fns';
 
 const MyBookings = () => {
@@ -50,7 +51,7 @@ const MyBookings = () => {
             <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
               Find and book your perfect car today
             </p>
-            <Link to="/explore">
+            <Link href="/explore">
               <button className="btn-primary">Explore Cars</button>
             </Link>
           </div>

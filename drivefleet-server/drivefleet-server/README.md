@@ -18,7 +18,7 @@ MONGODB_URI=mongodb+srv://...
 DB_NAME=drivefleet
 BETTER_AUTH_SECRET=replace_with_a_long_random_secret
 BETTER_AUTH_URL=http://localhost:5000
-CLIENT_URL=http://localhost:5173
+CLIENT_URL=http://localhost:3000
 GOOGLE_CLIENT_ID=your_google_oauth_client_id
 GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
 ALLOW_VERCEL_PREVIEWS=false
@@ -53,6 +53,8 @@ https://your-drivefleet-server.vercel.app/api/auth/callback/google
 | GET | `/api/auth/ok` | No | Better Auth health check |
 | POST | `/api/auth/sign-in/email` | No | Better Auth email login |
 | POST | `/api/auth/sign-up/email` | No | Better Auth email signup |
+| GET | `/api/auth/token` | Yes | Issue a Better Auth JWT for external services |
+| GET | `/api/auth/jwks` | No | JWT verification keys |
 | GET/POST | `/api/auth/*` | No | Better Auth routes |
 | GET | `/cars` | No | Get cars |
 | GET | `/cars/:id` | No | Get one car |

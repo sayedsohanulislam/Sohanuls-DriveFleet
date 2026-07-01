@@ -1,5 +1,7 @@
+"use client";
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { FiEye, FiEyeOff, FiMail, FiLock, FiUser, FiImage, FiCheckCircle, FiXCircle } from 'react-icons/fi';
@@ -8,7 +10,7 @@ import { MdDirectionsCar } from 'react-icons/md';
 
 const Register = () => {
   const { register, googleLogin, logout, user } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const [form, setForm] = useState({ name: '', email: '', photoURL: '', password: '' });
   const [showPw, setShowPw] = useState(false);
@@ -17,8 +19,8 @@ const Register = () => {
 
   useEffect(() => {
     document.title = 'Register — DriveFleet';
-    if (user) navigate('/');
-  }, [user, navigate]);
+    if (user) router.push('/');
+  }, [user, router]);
 
   const handleChange = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
@@ -41,7 +43,7 @@ const Register = () => {
       await register(form.email, form.password, form.name, form.photoURL);
       await logout();
       toast.success('Account created! Please sign in. 🎉');
-      navigate('/login');
+      router.push('/login');
     } catch (err) {
       const msg = err?.message?.includes('already') || err?.status === 422
         ? 'This email is already registered'
@@ -79,7 +81,7 @@ const Register = () => {
       }}
     >
       <div className="w-full max-w-md">
-        <Link to="/" className="flex items-center justify-center gap-2 mb-8">
+        <Link href="/" className="flex items-center justify-center gap-2 mb-8">
           <MdDirectionsCar style={{ color: 'var(--orange)', fontSize: '2rem' }} />
           <span className="font-display text-3xl tracking-widest">
             DRIVE<span style={{ color: 'var(--orange)' }}>FLEET</span>
@@ -187,7 +189,7 @@ const Register = () => {
 
           <p className="text-sm text-center mt-6" style={{ color: 'var(--text-secondary)' }}>
             Already have an account?{' '}
-            <Link to="/login" className="font-semibold transition-colors hover:underline" style={{ color: 'var(--orange)' }}>
+            <Link href="/login" className="font-semibold transition-colors hover:underline" style={{ color: 'var(--orange)' }}>
               Sign In
             </Link>
           </p>

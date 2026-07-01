@@ -1,5 +1,6 @@
+"use client";
 import { useEffect, useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import axios from 'axios';
 import { API_BASE_URL } from '../lib/api';
 import CarCard from '../components/CarCard';
@@ -21,13 +22,19 @@ const CountUp = ({ end, label, suffix = '' }) => {
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting && !started.current) {
         started.current = true;
-        let start = 0;
-        const step = Math.ceil(end / 60);
-        const timer = setInterval(() => {
-          start += step;
-          if (start >= end) { setCount(end); clearInterval(timer); }
-          else setCount(start);
-        }, 20);
+        const duration = 1500; // 1.5 seconds
+        const startTime = performance.now();
+        
+        const animate = (currentTime) => {
+          const progress = Math.min((currentTime - startTime) / duration, 1);
+          const currentCount = Math.floor(progress * end);
+          setCount(currentCount);
+          
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          }
+        };
+        requestAnimationFrame(animate);
       }
     });
     if (ref.current) observer.observe(ref.current);
@@ -141,12 +148,12 @@ const Home = () => {
             </p>
 
             <div className="flex flex-wrap gap-4">
-              <Link to="/explore">
+              <Link href="/explore">
                 <button className="btn-primary flex items-center gap-2 text-base px-8 py-4">
                   Explore Fleet <FiArrowRight />
                 </button>
               </Link>
-              <Link to="/register">
+              <Link href="/register">
                 <button className="btn-outline flex items-center gap-2 text-base px-8 py-4">
                   Get Started Free
                 </button>
@@ -235,7 +242,7 @@ const Home = () => {
               TOP PICKS
             </h2>
           </div>
-          <Link to="/explore">
+          <Link href="/explore">
             <button className="btn-outline flex items-center gap-2 text-sm">
               View All Cars <FiArrowRight />
             </button>
@@ -247,7 +254,7 @@ const Home = () => {
         ) : cars.length === 0 ? (
           <div className="text-center py-16" style={{ color: 'var(--text-secondary)' }}>
             <p className="text-lg">No cars available yet.</p>
-            <Link to="/add-car" className="mt-4 inline-block">
+            <Link href="/add-car" className="mt-4 inline-block">
               <button className="btn-primary mt-4">Add First Car</button>
             </Link>
           </div>
@@ -409,7 +416,7 @@ const Home = () => {
           </div>
 
           <div className="text-center mt-12">
-            <Link to="/explore">
+            <Link href="/explore">
               <button className="btn-primary text-base px-10 py-4 flex items-center gap-2 mx-auto">
                 Start Driving Now <FiArrowRight />
               </button>

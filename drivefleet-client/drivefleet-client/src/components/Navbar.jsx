@@ -1,5 +1,8 @@
+"use client";
+
 import { useState, useRef, useEffect } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import {
@@ -10,7 +13,8 @@ import { MdDirectionsCar } from 'react-icons/md';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropOpen, setDropOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -36,7 +40,7 @@ const Navbar = () => {
     try {
       await logout();
       toast.success('Logged out successfully');
-      navigate('/');
+      router.push('/');
     } catch {
       toast.error('Logout failed');
     }
@@ -44,9 +48,9 @@ const Navbar = () => {
     setMenuOpen(false);
   };
 
-  const navLinkClass = ({ isActive }) =>
+  const navLinkClass = (to) =>
     `font-ui font-semibold tracking-wider uppercase text-sm transition-colors ${
-      isActive ? 'text-orange-500' : 'text-gray-300 hover:text-white'
+      pathname === to ? 'text-orange-500' : 'text-gray-300 hover:text-white'
     }`;
 
   return (
@@ -66,7 +70,7 @@ const Navbar = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <MdDirectionsCar style={{ color: 'var(--orange)', fontSize: '1.8rem' }} />
           <span
             className="font-display text-2xl tracking-widest"
@@ -78,12 +82,12 @@ const Navbar = () => {
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-8">
-          <NavLink to="/" className={navLinkClass} end>Home</NavLink>
-          <NavLink to="/explore" className={navLinkClass}>Explore Cars</NavLink>
+          <Link href="/" className={navLinkClass('/')}>Home</Link>
+          <Link href="/explore" className={navLinkClass('/explore')}>Explore Cars</Link>
           {user && (
             <>
-              <NavLink to="/add-car" className={navLinkClass}>Add Car</NavLink>
-              <NavLink to="/my-bookings" className={navLinkClass}>My Bookings</NavLink>
+              <Link href="/add-car" className={navLinkClass('/add-car')}>Add Car</Link>
+              <Link href="/my-bookings" className={navLinkClass('/my-bookings')}>My Bookings</Link>
             </>
           )}
         </div>
@@ -134,7 +138,7 @@ const Navbar = () => {
                   ].map((item) => (
                     <Link
                       key={item.to}
-                      to={item.to}
+                      href={item.to}
                       onClick={() => setDropOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-white/5"
                       style={{ color: 'var(--text-secondary)' }}
@@ -157,7 +161,7 @@ const Navbar = () => {
               )}
             </div>
           ) : (
-            <Link to="/login">
+            <Link href="/login">
               <button className="btn-primary text-sm">Login</button>
             </Link>
           )}
@@ -193,21 +197,20 @@ const Navbar = () => {
                 { to: '/my-cars', label: 'My Added Cars' },
               ] : []),
             ].map((item) => (
-              <NavLink
+              <Link
                 key={item.to}
-                to={item.to}
-                end={item.to === '/'}
+                href={item.to}
                 onClick={() => setMenuOpen(false)}
-                className={({ isActive }) =>
+                className={
                   `block px-3 py-3 rounded-lg font-ui font-semibold tracking-wider uppercase text-sm transition-colors ${
-                    isActive
+                    pathname === item.to
                       ? 'bg-orange-500/10 text-orange-500'
                       : 'text-gray-300 hover:bg-white/5'
                   }`
                 }
               >
                 {item.label}
-              </NavLink>
+              </Link>
             ))}
 
             {user ? (
@@ -219,7 +222,7 @@ const Navbar = () => {
                 <FiLogOut /> Logout
               </button>
             ) : (
-              <Link to="/login" onClick={() => setMenuOpen(false)}>
+              <Link href="/login" onClick={() => setMenuOpen(false)}>
                 <button className="btn-primary w-full mt-2">Login</button>
               </Link>
             )}

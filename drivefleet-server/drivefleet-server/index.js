@@ -4,7 +4,8 @@ import cors from 'cors';
 import { MongoClient, ObjectId, ServerApiVersion } from 'mongodb';
 import { betterAuth } from 'better-auth';
 import { mongodbAdapter } from 'better-auth/adapters/mongodb';
-import { fromNodeHeaders, toNodeHandler } from 'better-auth/node';
+import { toNodeHandler } from 'better-auth/node';
+import { jwt } from 'better-auth/plugins';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -19,7 +20,7 @@ const parseOrigins = (value) =>
     .filter(Boolean)
     .map((origin) => origin.replace(/\/$/, ''));
 
-const clientOrigins = parseOrigins(process.env.CLIENT_URL || 'http://localhost:5173');
+const clientOrigins = parseOrigins(process.env.CLIENT_URL || 'http://localhost:3000');
 const allowVercelPreviews = process.env.ALLOW_VERCEL_PREVIEWS === 'true';
 const hasGoogleOAuth = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
 
@@ -35,17 +36,7 @@ const isAllowedOrigin = (origin) => {
   }
 };
 
-const authBaseURL = process.env.BETTER_AUTH_URL
-  ? process.env.BETTER_AUTH_URL.replace(/\/$/, '')
-  : {
-      allowedHosts: [
-        `localhost:${PORT}`,
-        '127.0.0.1:5000',
-        ...(process.env.VERCEL_URL ? [process.env.VERCEL_URL] : []),
-        ...(allowVercelPreviews ? ['*.vercel.app'] : []),
-      ],
-      protocol: isProduction ? 'https' : 'http',
-    };
+const authBaseURL = (process.env.BETTER_AUTH_URL || `http://localhost:${PORT}`).replace(/\/$/, '');
 
 const mongoClient = new MongoClient(MONGODB_URI, {
   serverApi: { version: ServerApiVersion.v1, strict: true, deprecationErrors: true },
@@ -59,19 +50,19 @@ let mongoConnectionPromise;
 let indexesReady = false;
 
 const auth = betterAuth({
-  database: mongodbAdapter(db, { client: mongoClient }),
   baseURL: authBaseURL,
-  secret: process.env.BETTER_AUTH_SECRET,
+  database: mongodbAdapter(db),
+  hooks: {
+    onUserCreated: (user) => {
+      return { ...user, role: user.role || 'user' };
+    },
+  },
   trustedOrigins: [
     ...clientOrigins,
     ...(allowVercelPreviews ? ['https://*.vercel.app'] : []),
   ],
   emailAndPassword: {
     enabled: true,
-  },
-  account: {
-    storeStateStrategy: 'database',
-    skipStateCookieCheck: true,
   },
   socialProviders: hasGoogleOAuth
     ? {
@@ -80,15 +71,29 @@ const auth = betterAuth({
           clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         },
       }
-    : {},
+    : undefined,
+  plugins: [
+    jwt({
+      jwt: {
+        expirationTime: '12h',
+        issuer: authBaseURL,
+        audience: authBaseURL,
+        definePayload: ({ user }) => ({
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          image: user.image,
+          role: user.role,
+        }),
+      },
+    }),
+  ],
   advanced: {
-    useSecureCookies: isProduction,
-    defaultCookieAttributes: isProduction
-      ? {
-          sameSite: 'none',
-          secure: true,
-        }
-      : undefined,
+    defaultCookieAttributes: {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+    },
   },
 });
 
@@ -128,41 +133,91 @@ app.use(
   }),
 );
 
-// Better Auth must be mounted before express.json().
-app.all('/api/auth/*', toNodeHandler(auth));
+const headersFromRequest = (req) => {
+  const headers = new Headers();
+  for (const [key, value] of Object.entries(req.headers)) {
+    if (Array.isArray(value)) {
+      headers.set(key, value.join(', '));
+    } else if (value !== undefined) {
+      headers.set(key, value);
+    }
+  }
+  return headers;
+};
 
-app.use(express.json());
+const parseLimitedInt = (value, fallback = 50, max = 100) => {
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+  return Math.min(parsed, max);
+};
 
 const verifySession = async (req, res, next) => {
   try {
     const session = await auth.api.getSession({
-      headers: fromNodeHeaders(req.headers),
+      headers: headersFromRequest(req),
     });
 
-    if (!session?.user) {
-      return res.status(401).json({ message: 'Unauthorized: please log in' });
+    if (!session?.user?.email) {
+      return res.status(401).json({ message: 'Unauthorized access' });
     }
 
     req.user = {
-      email: session.user.email,
       id: session.user.id,
+      email: session.user.email,
       name: session.user.name,
       image: session.user.image,
+      role: session.user.role,
     };
     next();
   } catch (error) {
     console.error('Session verification failed:', error);
-    return res.status(401).json({ message: 'Unauthorized' });
+    res.status(401).json({ message: 'Unauthorized access' });
   }
+};
+
+const verifyAdmin = (req, res, next) => {
+  if (req.user?.role !== 'admin') {
+    return res.status(403).json({ message: 'Forbidden: Admin access required' });
+  }
+  next();
 };
 
 app.get('/', (req, res) => {
   res.json({
     status: 'DriveFleet API is running',
-    auth: '/api/auth/ok',
+    auth: '/api/auth/*',
+    jwt: '/api/auth/token',
     timestamp: new Date().toISOString(),
   });
 });
+
+app.get('/api/auth/ok', (req, res) => {
+  res.json({ success: true, auth: 'Better Auth is mounted' });
+});
+
+app.get('/api/admin/stats', verifySession, verifyAdmin, (req, res) => {
+  res.json({
+    success: true,
+    message: 'Welcome, admin!',
+    stats: {
+      users: 100, // Replace with actual stats
+      cars: 50, // Replace with actual stats
+      bookings: 200, // Replace with actual stats
+    },
+  });
+});
+
+app.all('/api/auth/*', async (req, res, next) => {
+  try {
+    await connectToDatabase();
+    next();
+  } catch (error) {
+    console.error('MongoDB connection failed:', error);
+    res.status(500).json({ message: 'Database connection failed' });
+  }
+}, toNodeHandler(auth));
+
+app.use(express.json());
 
 app.use(async (req, res, next) => {
   try {
@@ -178,8 +233,12 @@ app.get('/cars', async (req, res) => {
   try {
     const { q, type, sort, limit } = req.query;
     const query = {};
+    const resultLimit = parseLimitedInt(limit);
 
-    if (q) query.carName = { $regex: q, $options: 'i' };
+    if (q) {
+      const escapedSearch = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      query.carName = { $regex: escapedSearch, $options: 'i' };
+    }
     if (type && type !== 'All') query.carType = { $in: [type] };
 
     let sortOption = { dateAdded: -1 };
@@ -190,7 +249,7 @@ app.get('/cars', async (req, res) => {
     const cars = await carsCollection
       .find(query)
       .sort(sortOption)
-      .limit(Number.parseInt(limit, 10) || 0)
+      .limit(resultLimit)
       .toArray();
 
     res.json({ success: true, count: cars.length, data: cars });
@@ -336,6 +395,7 @@ app.post('/bookings', verifySession, async (req, res) => {
     const car = await carsCollection.findOne({ _id: new ObjectId(data.carId) });
     if (!car) return res.status(404).json({ message: 'Car not found' });
     if (!car.availabilityStatus) return res.status(400).json({ message: 'Car is not available' });
+    if (car.ownerEmail === req.user.email) return res.status(400).json({ message: 'You cannot book your own listed car' });
 
     const newBooking = {
       ...data,

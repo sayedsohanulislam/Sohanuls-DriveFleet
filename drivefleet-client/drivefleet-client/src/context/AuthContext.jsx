@@ -1,65 +1,84 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+"use client";
+import { createContext, useContext, useMemo } from 'react';
 import { authClient } from '../lib/authClient';
 
 const AuthContext = createContext(null);
 
+const toLegacyUser = (sessionUser) => {
+  if (!sessionUser) return null;
+
+  return {
+    ...sessionUser,
+    displayName: sessionUser.name || sessionUser.displayName || '',
+    photoURL: sessionUser.image || sessionUser.photoURL || '',
+  };
+};
+
+const throwBetterAuthError = (error, fallback) => {
+  if (!error) return;
+  const err = new Error(error.message || fallback);
+  err.status = error.status;
+  err.code = error.code;
+  throw err;
+};
+
 export const AuthProvider = ({ children }) => {
-  const { data: session, isPending: loading } = authClient.useSession();
-  const [sessionReady, setSessionReady] = useState(false);
-
-  useEffect(() => {
-    if (loading) {
-      setSessionReady(false);
-      return;
-    }
-
-    setSessionReady(true);
-  }, [loading]);
-
-  const user = session?.user
-    ? {
-        email: session.user.email,
-        displayName: session.user.name,
-        photoURL: session.user.image,
-        uid: session.user.id,
-      }
-    : null;
+  const session = authClient.useSession();
+  const user = useMemo(() => toLegacyUser(session.data?.user), [session.data?.user]);
 
   const login = async (email, password) => {
-    const { data, error } = await authClient.signIn.email({ email, password });
-    if (error) throw error;
-    return data;
+    const result = await authClient.signIn.email({
+      email,
+      password,
+      rememberMe: true,
+      callbackURL: '/',
+    });
+    throwBetterAuthError(result.error, 'Login failed');
+    await session.refetch?.();
+    return result.data;
   };
 
   const register = async (email, password, name, photoURL) => {
-    const { data, error } = await authClient.signUp.email({
+    const result = await authClient.signUp.email({
       email,
       password,
       name,
       image: photoURL || undefined,
+      callbackURL: '/',
     });
-    if (error) throw error;
-    return data;
+    throwBetterAuthError(result.error, 'Registration failed');
+    await session.refetch?.();
+    return result.data;
   };
 
-  const googleLogin = (callbackURL = '/') => {
-    const redirectTo = new URL(callbackURL, window.location.origin).toString();
-
+  const googleLogin = () => {
     return authClient.signIn.social({
       provider: 'google',
-      callbackURL: redirectTo,
+      callbackURL: '/',
+      errorCallbackURL: '/login',
+      newUserCallbackURL: '/',
     });
   };
 
   const logout = async () => {
-    const { error } = await authClient.signOut();
-    if (error) throw error;
+    const result = await authClient.signOut();
+    throwBetterAuthError(result.error, 'Logout failed');
+    await session.refetch?.();
+    return result.data;
   };
 
-  const updateUserProfile = () => Promise.resolve();
-
   return (
-    <AuthContext.Provider value={{ user, loading: loading || !sessionReady, login, register, googleLogin, logout, updateUserProfile }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading: session.isPending,
+        login,
+        register,
+        googleLogin,
+        logout,
+        refreshSession: session.refetch,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -1,5 +1,7 @@
+"use client";
 import { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { FiEye, FiEyeOff, FiMail, FiLock } from 'react-icons/fi';
@@ -8,9 +10,9 @@ import { MdDirectionsCar } from 'react-icons/md';
 
 const Login = () => {
   const { login, googleLogin, user } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from?.pathname || '/';
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const from = searchParams.get('from') || '/';
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPw, setShowPw] = useState(false);
@@ -19,8 +21,8 @@ const Login = () => {
 
   useEffect(() => {
     document.title = 'Login — DriveFleet';
-    if (user) navigate(from, { replace: true });
-  }, [user, navigate, from]);
+    if (user) router.push(from);
+  }, [user, router, from]);
 
   const handleChange = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
@@ -30,7 +32,7 @@ const Login = () => {
     try {
       await login(form.email, form.password);
       toast.success('Welcome back! 👋');
-      navigate(from, { replace: true });
+      router.push(from);
     } catch (err) {
       const msg = err?.status === 401 || err?.message?.toLowerCase().includes('invalid')
         ? 'Invalid email or password'
@@ -46,7 +48,8 @@ const Login = () => {
   const handleGoogle = async () => {
     setGLoading(true);
     try {
-      await googleLogin(from);
+      await googleLogin();
+      router.push(from);
     } catch {
       toast.error('Google login failed. Try again.');
       setGLoading(false);
@@ -61,7 +64,7 @@ const Login = () => {
     >
       <div className="w-full max-w-md">
         {/* Logo */}
-        <Link to="/" className="flex items-center justify-center gap-2 mb-8">
+        <Link href="/" className="flex items-center justify-center gap-2 mb-8">
           <MdDirectionsCar style={{ color: 'var(--orange)', fontSize: '2rem' }} />
           <span className="font-display text-3xl tracking-widest">
             DRIVE<span style={{ color: 'var(--orange)' }}>FLEET</span>
@@ -158,7 +161,7 @@ const Login = () => {
 
           <p className="text-sm text-center mt-6" style={{ color: 'var(--text-secondary)' }}>
             Don't have an account?{' '}
-            <Link to="/register" className="font-semibold transition-colors hover:underline" style={{ color: 'var(--orange)' }}>
+            <Link href="/register" className="font-semibold transition-colors hover:underline" style={{ color: 'var(--orange)' }}>
               Create Account
             </Link>
           </p>

@@ -1,10 +1,12 @@
+"use client";
+
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axiosSecure from '../hooks/useAxiosSecure';
 import LoadingSpinner from '../components/LoadingSpinner';
 import toast from 'react-hot-toast';
 import { FiEdit2, FiTrash2, FiX, FiCheck, FiPlus } from 'react-icons/fi';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 
 const CAR_TYPES = ['SUV', 'Sedan', 'Hatchback', 'Luxury', 'Electric', 'Convertible', 'Pickup'];
 
@@ -94,7 +96,7 @@ const MyAddedCars = () => {
               {cars.length} car{cars.length !== 1 ? 's' : ''} listed
             </p>
           </div>
-          <Link to="/add-car">
+          <Link href="/add-car">
             <button className="btn-primary flex items-center gap-2">
               <FiPlus /> Add New
             </button>
@@ -111,7 +113,7 @@ const MyAddedCars = () => {
             <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
               Start earning by listing your first car
             </p>
-            <Link to="/add-car">
+            <Link href="/add-car">
               <button className="btn-primary">List Your First Car</button>
             </Link>
           </div>

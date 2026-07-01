@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+"use client";
+
+import Link from 'next/link';
 import { FiMapPin, FiUsers, FiZap } from 'react-icons/fi';
 import { MdLocalFireDepartment } from 'react-icons/md';
 
@@ -121,7 +123,7 @@ const CarCard = ({ car }) => {
 
         {/* CTA */}
         <div className="mt-auto pt-3 border-t" style={{ borderColor: 'var(--navy-border)' }}>
-          <Link to={`/car/${_id}`} className="block">
+          <Link href={`/car/${_id}`} className="block">
             <button
               className="w-full btn-primary text-xs py-2.5 group-hover:shadow-orange transition-all"
               style={{ background: availabilityStatus ? 'var(--orange)' : '#374151' }}

@@ -1,5 +1,7 @@
+"use client";
+
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import axiosSecure from '../hooks/useAxiosSecure';
 import toast from 'react-hot-toast';
@@ -9,7 +11,7 @@ const CAR_TYPES = ['SUV', 'Sedan', 'Hatchback', 'Luxury', 'Electric', 'Convertib
 
 const AddCar = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     carName: '',
@@ -44,7 +46,7 @@ const AddCar = () => {
         bookingCount: 0,
       });
       toast.success('Car listed successfully! 🚗');
-      navigate('/my-cars');
+      router.push('/my-cars');
     } catch (err) {
       toast.error(err?.response?.data?.message || 'Failed to add car. Try again.');
     } finally {
