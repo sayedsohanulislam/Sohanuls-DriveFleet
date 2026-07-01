@@ -28,7 +28,7 @@ const Register = () => {
   const checks = {
     uppercase: /[A-Z]/.test(form.password),
     lowercase: /[a-z]/.test(form.password),
-    length: form.password.length >= 8,
+    length: form.password.length >= 6,
   };
   const passwordValid = checks.uppercase && checks.lowercase && checks.length;
 
@@ -167,7 +167,7 @@ const Register = () => {
                   className="mt-2 p-3 rounded-lg space-y-1.5"
                   style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--navy-border)' }}
                 >
-                  <CheckRow ok={checks.length} label="At least 8 characters" />
+                  <CheckRow ok={checks.length} label="At least 6 characters" />
                   <CheckRow ok={checks.uppercase} label="Contains uppercase letter (A-Z)" />
                   <CheckRow ok={checks.lowercase} label="Contains lowercase letter (a-z)" />
                 </div>
