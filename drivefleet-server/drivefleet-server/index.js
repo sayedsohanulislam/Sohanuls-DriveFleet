@@ -10,7 +10,13 @@ import { jwt } from 'better-auth/plugins';
 const app = express();
 const PORT = process.env.PORT || 5000;
 const DB_NAME = process.env.DB_NAME || 'drivefleet';
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017';
+const MONGODB_URI =
+  process.env.MONGODB_URI ||
+  process.env.MONGO_URI ||
+  process.env.MONGO_URL ||
+  process.env.DATABASE_URL ||
+  process.env.CONNECTION_STRING ||
+  (!process.env.VERCEL && process.env.NODE_ENV !== 'production' ? 'mongodb://127.0.0.1:27017' : '');
 const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
 
 const parseOrigins = (value) =>
@@ -98,6 +104,10 @@ const auth = betterAuth({
 });
 
 const connectToDatabase = async () => {
+  if (!MONGODB_URI) {
+    throw new Error('Missing MongoDB connection string. Set MONGODB_URI in the deployment environment.');
+  }
+
   if (!mongoConnectionPromise) {
     mongoConnectionPromise = mongoClient.connect().catch((error) => {
       mongoConnectionPromise = undefined;

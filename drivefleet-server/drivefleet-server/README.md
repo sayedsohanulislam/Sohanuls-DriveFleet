@@ -15,6 +15,7 @@ Required `.env` values:
 ```env
 PORT=5000
 MONGODB_URI=mongodb+srv://...
+# Optional aliases also supported: MONGO_URI, MONGO_URL, DATABASE_URL, CONNECTION_STRING
 DB_NAME=drivefleet
 BETTER_AUTH_SECRET=replace_with_a_long_random_secret
 BETTER_AUTH_URL=http://localhost:5000
