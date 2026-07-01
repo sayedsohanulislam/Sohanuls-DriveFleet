@@ -31,6 +31,8 @@ Client `.env`:
 NEXT_PUBLIC_API_URL=http://localhost:5000
 ```
 
+If you deploy the client and server separately, set `NEXT_PUBLIC_API_URL` to your live server URL.
+
 ## Vercel
 
 Deploy this folder as a Vercel project with:
