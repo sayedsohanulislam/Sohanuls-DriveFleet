@@ -31,7 +31,7 @@ Client `.env`:
 NEXT_PUBLIC_API_URL=http://localhost:5000
 ```
 
-If you deploy the client and server separately, set `NEXT_PUBLIC_API_URL` to your live server URL.
+If you deploy the client and server separately, set `NEXT_PUBLIC_API_URL` to your live server URL so the client can proxy auth and API requests through the same origin.
 
 ## Vercel
 
