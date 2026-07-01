@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const result = await authClient.signIn.email({
-      email,
+      email: email.trim().toLowerCase(),
       password,
       rememberMe: true,
       callbackURL: '/',
@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (email, password, name, photoURL) => {
     const result = await authClient.signUp.email({
-      email,
+      email: email.trim().toLowerCase(),
       password,
       name,
       image: photoURL || undefined,

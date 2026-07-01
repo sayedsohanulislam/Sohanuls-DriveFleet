@@ -30,9 +30,10 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await login(form.email, form.password);
+      await login(form.email.trim(), form.password);
       toast.success('Welcome back! 👋');
-      router.push(from);
+      router.replace(from);
+      router.refresh();
     } catch (err) {
       const msg = err?.status === 401 || err?.message?.toLowerCase().includes('invalid')
         ? 'Invalid email or password'
