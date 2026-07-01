@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useMemo } from 'react';
+import { createContext, useContext, useMemo, useEffect } from 'react';
 import { authClient } from '../lib/authClient';
 
 const AuthContext = createContext(null);
@@ -26,6 +26,11 @@ export const AuthProvider = ({ children }) => {
   const session = authClient.useSession();
   const user = useMemo(() => toLegacyUser(session.data?.user), [session.data?.user]);
 
+  // Refetch session on mount to pick up OAuth redirects and session cookies
+  useEffect(() => {
+    session.refetch?.();
+  }, []);
+
   const login = async (email, password) => {
     const result = await authClient.signIn.email({
       email: email.trim().toLowerCase(),
@@ -51,13 +56,17 @@ export const AuthProvider = ({ children }) => {
     return result.data;
   };
 
-  const googleLogin = () => {
-    return authClient.signIn.social({
+  const googleLogin = async () => {
+    const result = await authClient.signIn.social({
       provider: 'google',
       callbackURL: '/',
       errorCallbackURL: '/login',
       newUserCallbackURL: '/',
     });
+    throwBetterAuthError(result.error, 'Google login failed');
+    // After Google redirects back, refetch the session
+    setTimeout(() => session.refetch?.(), 500);
+    return result.data;
   };
 
   const logout = async () => {
