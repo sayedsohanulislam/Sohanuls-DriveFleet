@@ -140,7 +140,7 @@ const ExploreCars = () => {
           <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
             Showing <span style={{ color: 'var(--text-primary)' }}>{cars.length}</span> vehicles
             {activeType !== 'All' && <> in <span style={{ color: 'var(--orange)' }}>{activeType}</span></>}
-            {search && <> matching "<span style={{ color: 'var(--orange)' }}>{search}</span>"</>}
+            {search && <> matching <span style={{ color: 'var(--orange)' }}>{search}</span></>}
           </p>
         )}
 

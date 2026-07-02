@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axiosSecure from '../hooks/useAxiosSecure';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -19,12 +19,7 @@ const MyAddedCars = () => {
   const [submitting, setSubmitting] = useState(false);
   const [editForm, setEditForm] = useState({});
 
-  useEffect(() => {
-    document.title = 'My Cars — DriveFleet';
-    fetchMyCars();
-  }, []);
-
-  const fetchMyCars = async () => {
+  const fetchMyCars = useCallback(async () => {
     setLoading(true);
     try {
       const res = await axiosSecure.get(`/my-cars?email=${user.email}`);
@@ -34,7 +29,12 @@ const MyAddedCars = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user.email]);
+
+  useEffect(() => {
+    document.title = 'My Cars — DriveFleet';
+    fetchMyCars();
+  }, [fetchMyCars]);
 
   const openUpdate = (car) => {
     setEditForm({

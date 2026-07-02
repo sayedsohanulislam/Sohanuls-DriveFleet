@@ -33,8 +33,7 @@ const NotFound = () => {
         <div className="text-5xl mb-4">🚗💨</div>
         <h1 className="font-display text-4xl mb-3">ROAD CLOSED AHEAD</h1>
         <p className="text-base leading-relaxed mb-8" style={{ color: 'var(--text-secondary)' }}>
-          Looks like you've taken a wrong turn. The page you're looking for
-          doesn't exist or has been moved.
+          This route is closed. The page could not be found or has been moved.
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-4">

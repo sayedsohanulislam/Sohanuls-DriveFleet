@@ -161,7 +161,7 @@ const Login = () => {
           </form>
 
           <p className="text-sm text-center mt-6" style={{ color: 'var(--text-secondary)' }}>
-            Don't have an account?{' '}
+            Do not have an account?{' '}
             <Link href="/register" className="font-semibold transition-colors hover:underline" style={{ color: 'var(--orange)' }}>
               Create Account
             </Link>

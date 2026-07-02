@@ -345,7 +345,7 @@ const Home = () => {
               style={{ background: 'var(--navy-card)', border: '1px solid var(--navy-border)' }}>
               {/* Quote mark decoration */}
               <span className="absolute top-4 right-5 font-display text-8xl opacity-5 leading-none select-none"
-                style={{ color: 'var(--orange)' }}>"</span>
+                style={{ color: 'var(--orange)' }}>&quot;</span>
 
               {/* Stars */}
               <div className="flex gap-0.5">
@@ -356,7 +356,7 @@ const Home = () => {
 
               {/* Review text */}
               <p className="text-sm leading-relaxed flex-1" style={{ color: 'var(--text-secondary)' }}>
-                "{t.text}"
+                {t.text}
               </p>
 
               {/* Car tag */}

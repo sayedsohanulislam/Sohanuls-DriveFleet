@@ -241,7 +241,7 @@ const CarDetails = () => {
                   onChange={(e) => setBookingData(p => ({ ...p, driverNeeded: e.target.value }))}
                   className="df-select"
                 >
-                  <option value="No">No — I'll drive myself</option>
+                  <option value="No">No - I will drive myself</option>
                   <option value="Yes">Yes — Provide a driver</option>
                 </select>
               </div>

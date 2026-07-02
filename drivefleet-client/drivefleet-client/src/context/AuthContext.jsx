@@ -24,15 +24,17 @@ const throwBetterAuthError = (error, fallback) => {
 
 export const AuthProvider = ({ children }) => {
   const session = authClient.useSession();
-  const user = useMemo(() => toLegacyUser(session.data?.user), [session.data?.user]);
+  const sessionUser = session.data?.user;
+  const { isPending, refetch } = session;
+  const user = useMemo(() => toLegacyUser(sessionUser), [sessionUser]);
 
   // Refetch session on mount to pick up OAuth redirects and session cookies
   useEffect(() => {
     // Only refetch if we don't already have a session
-    if (!session.data?.user && !session.isPending) {
-      session.refetch?.();
+    if (!sessionUser && !isPending) {
+      refetch?.();
     }
-  }, [session.data?.user, session.isPending]);
+  }, [sessionUser, isPending, refetch]);
 
   const login = async (email, password) => {
     const result = await authClient.signIn.email({
@@ -42,7 +44,7 @@ export const AuthProvider = ({ children }) => {
       callbackURL: '/',
     });
     throwBetterAuthError(result.error, 'Login failed');
-    await session.refetch?.();
+    await refetch?.();
     return result.data;
   };
 
@@ -55,7 +57,7 @@ export const AuthProvider = ({ children }) => {
       callbackURL: '/',
     });
     throwBetterAuthError(result.error, 'Registration failed');
-    await session.refetch?.();
+    await refetch?.();
     return result.data;
   };
 
@@ -68,14 +70,14 @@ export const AuthProvider = ({ children }) => {
     });
     throwBetterAuthError(result.error, 'Google login failed');
     // After Google redirects back, refetch the session
-    setTimeout(() => session.refetch?.(), 500);
+    setTimeout(() => refetch?.(), 500);
     return result.data;
   };
 
   const logout = async () => {
     const result = await authClient.signOut();
     throwBetterAuthError(result.error, 'Logout failed');
-    await session.refetch?.();
+    await refetch?.();
     return result.data;
   };
 
@@ -83,12 +85,12 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         user,
-        loading: session.isPending,
+        loading: isPending,
         login,
         register,
         googleLogin,
         logout,
-        refreshSession: session.refetch,
+        refreshSession: refetch,
       }}
     >
       {children}
